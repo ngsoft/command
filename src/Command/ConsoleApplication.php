@@ -59,14 +59,6 @@ class ConsoleApplication
             }
         } catch (CommandError $err)
         {
-            $helper->err(
-                $this->helper->block(
-                    $err->getMessage(),
-                    'bg:red',
-                ),
-                "\n"
-            );
-
             $result = $err->getCode();
         } catch (\Throwable $err)
         {
