@@ -21,9 +21,9 @@ class ConsoleApplication
 
     public function __construct()
     {
-        $this->helper      = new OutputHelper();
-        $this->io          = $this->helper->getIo();
-        $this->opt         = $this->io->parseOpt();
+        $this->helper = new OutputHelper();
+        $this->io = $this->helper->getIo();
+        $this->opt = $this->io->parseOpt();
         $this->definitions = new Map();
         $this->setFallbackDefinition($help = new Help());
         $help->setDefinitions($this->definitions);
@@ -31,16 +31,14 @@ class ConsoleApplication
 
     public function run(?string $command = null): never
     {
-        $helper  = $this->helper;
+        $helper = $this->helper;
 
         $command ??= $this->opt[1] ?? '';
 
         $command = ltrim($command, '-');
 
-        try
-        {
-            if ( ! empty($command) && ! $this->definitions->has($command))
-            {
+        try {
+            if (!empty($command) && !$this->definitions->has($command)) {
                 throw new CommandError(ExitCode::COMMAND_NOT_FOUND, "Command '{$command}' not defined");
             }
 
@@ -48,20 +46,16 @@ class ConsoleApplication
 
             $result = $runner($helper);
 
-            if ( ! is_int($result))
-            {
+            if (!is_int($result)) {
                 $result = ExitCode::COMMAND_SUCCESS;
             }
 
-            if ($result > 0)
-            {
+            if ($result > 0) {
                 throw new CommandError($result);
             }
-        } catch (CommandError $err)
-        {
+        } catch (CommandError $err) {
             $result = $err->getCode();
-        } catch (\Throwable $err)
-        {
+        } catch (\Throwable $err) {
             $helper->err(
                 $this->helper->block(
                     sprintf("%s has been thrown:\n%s", get_class($err), $err->getMessage()),
@@ -83,19 +77,15 @@ class ConsoleApplication
 
     public function addMany(array $definitions): static
     {
-        foreach ($definitions as $name => $runner)
-        {
-            if (is_string($name))
-            {
-                if (is_string($runner) && is_subclass_of($runner, Command::class))
-                {
-                    $this->add($name, function (OutputHelper $helper) use ($runner, $name)
-                    {
+        foreach ($definitions as $name => $runner) {
+            if (is_string($name)) {
+                if (is_string($runner) && is_subclass_of($runner, Command::class)) {
+                    $this->add($name, function (OutputHelper $helper) use ($runner, $name) {
                         $instance = new $runner($name);
                         return $instance($helper);
                     });
-                } elseif ($runner instanceof \Closure || $runner instanceof Command)
-                {
+                    continue;
+                } elseif ($runner instanceof \Closure || $runner instanceof Command) {
                     $this->add($name, $runner);
                     continue;
                 }
